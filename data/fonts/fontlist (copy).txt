@@ -1,0 +1,5 @@
+data/fonts/more_font/仿宋_GB2312.ttf
+data/fonts/more_font/华文隶书.TTF
+data/fonts/more_font/微软vista黑体.ttf
+data/fonts/more_font/楷体_GB2312.ttf
+data/fonts/more_font/宋体_GB18030+%26+新宋体_GB18030.ttc
