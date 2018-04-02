@@ -144,11 +144,12 @@ for text in texts:
         words.extend(stream.readlines())
 
 allStr = ''.join(words)
-allStr = re.sub(args.cleanup, '', allStr)
+allStr = re.sub(args.cleanup, '', allStr).replace(' ', '')
 words = list(allStr)
 pyrandom.shuffle(words)
 print('words length: ', len(words))
-
+with open('keys.txt', 'w') as f:
+    f.write(''.join(set(allStr)))
 
 if args.length is not None:
     start = args.length
@@ -205,13 +206,13 @@ os.system("rm -rf "+base)
 os.mkdir(base)
 
 
-def crop(image,pad=1):
+def crop(image, vpad=1, hpad=1):
     [[r,c]] = measurements.find_objects(np.array(image==0,'i'))
     r0 = r.start
     r1 = r.stop
     c0 = c.start
     c1 = c.stop
-    image = image[r0-pad:r1+pad,c0-pad:c1+pad]
+    image = image[r0-hpad:r1+hpad,c0-vpad:c1+vpad]
     return image
 
 last_font = None
@@ -232,12 +233,13 @@ def genline(text,fontfile=None,size=36,sigma=0.5,threshold=0.5):
     draw.text((250,20),text,fill="black",font=font)
     a = np.asarray(image,'f')
     a = a*1.0/np.amax(a)
-    if sigma>0.0:
-        a = filters.gaussian_filter(a,sigma)
-    a += np.clip(np.random.randn(*a.shape)*0.2,-0.25,0.25)
-    a = rgeometry(a)
-    a = np.array(a>threshold,'f')
-    a = crop(a,pad=3)
+    #注释掉以下几行，生成的文字非常清楚
+    # if sigma>0.0:
+    #     a = filters.gaussian_filter(a,sigma)
+    # a += np.clip(np.random.randn(*a.shape)*0.2,-0.25,0.25)
+    # a = rgeometry(a)
+    # a = np.array(a>threshold,'f')
+    a = crop(a, hpad=5, vpad=14)
     # FIXME add grid warping here
     # clf(); ion(); gray(); imshow(a); ginput(1,0.1)
     del draw
@@ -283,7 +285,7 @@ for pageno,font in enumerate(fonts):
             plt.imshow(image)
             plt.ginput(1,0.1)
         fname = pagedir+"/%02d-%04d"%(pageno,lineno)
-        imsave(fname+".png",image)
+        imsave(fname+".jpg",image)
 
         # gt = ocrolib.normalize_text(line)
         with codecs.open(fname+".txt","w",'utf-8') as stream:
